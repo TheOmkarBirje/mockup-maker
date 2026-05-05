@@ -91,6 +91,11 @@ function App() {
       console.error('Placeholder-Image not found in template');
     }
     
+    const overlay = doc.querySelector('#Overlay') || doc.querySelector('[id="Overlay"]');
+    if (overlay) {
+      overlay.parentNode.removeChild(overlay);
+    }
+    
     const serializer = new XMLSerializer();
     return serializer.serializeToString(doc);
   };
