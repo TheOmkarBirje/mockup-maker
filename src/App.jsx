@@ -176,10 +176,6 @@ function App() {
 
   return (
     <div className="app-container animate-fade-in">
-      <header className="header">
-        <h1>Premium Mockup Maker</h1>
-        <p>Batch generate stunning mockups in seconds</p>
-      </header>
 
       <div className="mockup-chooser glass-panel">
         <h3>Select Mockup Style</h3>
