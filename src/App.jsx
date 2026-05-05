@@ -91,7 +91,20 @@ function App() {
       console.error('Placeholder-Image not found in template');
     }
     
-    
+    // Hide the faint horizontal line artifact from Figma exports (at y=595)
+    const bgRect = doc.querySelector('svg > rect');
+    if (bgRect) {
+      const bgColor = bgRect.getAttribute('fill');
+      if (bgColor) {
+        const coverRect = doc.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        coverRect.setAttribute('x', '0');
+        coverRect.setAttribute('y', '593');
+        coverRect.setAttribute('width', '3589');
+        coverRect.setAttribute('height', '4');
+        coverRect.setAttribute('fill', bgColor);
+        doc.documentElement.appendChild(coverRect);
+      }
+    }
     
     const serializer = new XMLSerializer();
     return serializer.serializeToString(doc);
