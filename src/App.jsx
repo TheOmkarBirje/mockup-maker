@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 import './App.css';
 
 const MOCKUPS = [
-  { id: 'Screenshot.svg', name: 'Default' },
   { id: 'Mockup-1-Light-Mode.svg', name: 'Light Mode' },
   { id: 'Mockup-1-Dark-Mode.svg', name: 'Dark Mode' },
   { id: 'Mockup-1-Blank-Light-Mode.svg', name: 'Blank Light' },
@@ -110,10 +111,10 @@ function App() {
     }
   }, [files, svgTemplate]);
 
-  // Convert SVG String to PNG and download
-  const processAndDownload = async (file, index) => {
+  // Convert SVG String to PNG Blob
+  const generateMockupBlob = async (file) => {
     const svgString = await generateModifiedSvg(file);
-    if (!svgString) return;
+    if (!svgString) return null;
 
     return new Promise((resolve) => {
       const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
@@ -127,30 +128,15 @@ function App() {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0);
         
-        // Trigger download for Mockup
-        const mockupName = `${index * 2 + 1}.png`;
-        const link1 = document.createElement('a');
-        link1.download = mockupName;
-        link1.href = canvas.toDataURL('image/png', 1.0);
-        link1.click();
-        
-        // Trigger download for Original Image
-        const originalName = `${index * 2 + 2}.png`;
-        const originalUrl = URL.createObjectURL(file);
-        const link2 = document.createElement('a');
-        link2.download = originalName;
-        link2.href = originalUrl;
-        link2.click();
-        
-        // Cleanup
-        setTimeout(() => URL.revokeObjectURL(originalUrl), 1000);
-        URL.revokeObjectURL(url);
-        resolve();
+        canvas.toBlob((mockupBlob) => {
+          URL.revokeObjectURL(url);
+          resolve(mockupBlob);
+        }, 'image/png', 1.0);
       };
       img.onerror = (e) => {
         console.error('Failed to load image into canvas:', e);
         URL.revokeObjectURL(url);
-        resolve(); // resolve anyway to not block the queue
+        resolve(null);
       };
       img.src = url;
     });
@@ -162,15 +148,31 @@ function App() {
     setIsProcessing(true);
     setProgress(0);
     
+    const zip = new JSZip();
+    
     for (let i = 0; i < files.length; i++) {
-      await processAndDownload(files[i], i);
+      const mockupBlob = await generateMockupBlob(files[i]);
+      if (mockupBlob) {
+        zip.file(`${i * 2 + 1}.png`, mockupBlob);
+      }
+      zip.file(`${i * 2 + 2}.png`, files[i]);
+      
       setProgress(((i + 1) / files.length) * 100);
       // Small delay to let browser breathe and update UI
-      await new Promise(r => setTimeout(r, 300));
+      await new Promise(r => setTimeout(r, 100));
+    }
+    
+    try {
+      const content = await zip.generateAsync({ type: 'blob' });
+      saveAs(content, 'mockups.zip');
+    } catch (error) {
+      console.error("Error generating zip:", error);
     }
     
     setIsProcessing(false);
+    setProgress(0);
   };
+
 
   return (
     <div className="app-container animate-fade-in">
