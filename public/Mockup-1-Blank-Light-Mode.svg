@@ -14,7 +14,7 @@
 <path id="Vector 1" d="M1142 2226.5L849 1939.5L743.5 2602.5L1156.5 2724.5C1187.17 2724 1250.3 2705.8 1257.5 2637C1264.7 2568.2 1209.83 2530.67 1181.5 2520.5V2443C1207.5 2432.2 1222.67 2397.5 1227 2381.5C1243.8 2289.1 1177.33 2239.67 1142 2226.5Z" fill="#D9D9D9" stroke="black"/>
 </mask>
 <g mask="url(#mask0_2568_642)">
-<rect id="image 5_2" x="207" y="595" width="3176" height="3000" fill="url(#pattern2_2568_642)"/>
+<rect id="image 5_2" x="207" y="630" width="3176" height="2965" fill="url(#pattern2_2568_642)"/>
 </g>
 </g>
 <rect id="BG" x="1587" y="689" width="375" height="111" fill="url(#pattern3_2568_642)"/>
@@ -22,6 +22,7 @@
 </g>
 <rect id="image 8" x="122" y="122" width="133" height="133" rx="66.5" fill="url(#pattern4_2568_642)"/>
 <rect id="Overlay" x="1189" y="656" width="1168" height="2539" fill="url(#pattern5_2568_642)"/>
+<rect id="Rectangle 1" y="497" width="3589" height="101" fill="white"/>
 </g>
 <defs>
 <pattern id="pattern0_2568_642" patternContentUnits="objectBoundingBox" width="1" height="1">
@@ -31,7 +32,7 @@
 <use xlink:href="#image1_2568_642" transform="matrix(0.000529381 0 0 0.00024457 0 -0.000879564)"/>
 </pattern>
 <pattern id="pattern2_2568_642" patternContentUnits="objectBoundingBox" width="1" height="1">
-<use xlink:href="#image0_2568_642" transform="matrix(0.000887767 0 0 0.00093985 0.112046 0)"/>
+<use xlink:href="#image0_2568_642" transform="matrix(0.000887767 0 0 0.000950944 0.112046 -0.0118044)"/>
 </pattern>
 <pattern id="pattern3_2568_642" patternContentUnits="objectBoundingBox" width="1" height="1">
 <use xlink:href="#image2_2568_642" transform="matrix(0.00416901 0 0 0.0140845 0.00597183 0)"/>
