@@ -13,10 +13,13 @@ const MOCKUPS = [
 function App() {
   const [selectedMockup, setSelectedMockup] = useState(MOCKUPS[0].id);
   const [files, setFiles] = useState([]);
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const [svgTemplate, setSvgTemplate] = useState('');
   const [previewUrl, setPreviewUrl] = useState('');
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [processingCount, setProcessingCount] = useState(0);
   const fileInputRef = useRef(null);
 
   // Load SVG Template on mount or when selected mockup changes
@@ -110,21 +113,28 @@ function App() {
     return serializer.serializeToString(doc);
   };
 
-  // Update Preview when files change
+  // Update Preview when files change or selected index changes
   useEffect(() => {
-    if (files.length > 0 && svgTemplate) {
-      generateModifiedSvg(files[0]).then(svgString => {
+    if (files.length > 0 && svgTemplate && files[selectedIndex]) {
+      setIsPreviewLoading(true);
+      generateModifiedSvg(files[selectedIndex]).then(svgString => {
         if (svgString) {
           const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
           const url = URL.createObjectURL(blob);
           setPreviewUrl(url);
+          setIsPreviewLoading(false);
           return () => URL.revokeObjectURL(url);
+        } else {
+          setIsPreviewLoading(false);
         }
+      }).catch((err) => {
+        console.error('Error generating preview', err);
+        setIsPreviewLoading(false);
       });
     } else {
       setPreviewUrl('');
     }
-  }, [files, svgTemplate]);
+  }, [files, selectedIndex, svgTemplate]);
 
   // Convert SVG String to PNG Blob
   const generateMockupBlob = async (file) => {
@@ -162,10 +172,12 @@ function App() {
     
     setIsProcessing(true);
     setProgress(0);
+    setProcessingCount(0);
     
     const zip = new JSZip();
     
     for (let i = 0; i < files.length; i++) {
+      setProcessingCount(i + 1);
       const mockupBlob = await generateMockupBlob(files[i]);
       if (mockupBlob) {
         zip.file(`${i * 2 + 1}.png`, mockupBlob);
@@ -232,9 +244,20 @@ function App() {
           {files.length > 0 && (
             <div className="file-list">
               {files.map((file, index) => (
-                <div key={`${file.name}-${index}`} className="file-item animate-fade-in" style={{ animationDelay: `${index * 0.05}s` }}>
+                <div 
+                  key={`${file.name}-${index}`} 
+                  className={`file-item animate-fade-in ${index === selectedIndex ? 'selected' : ''}`} 
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                  onClick={() => setSelectedIndex(index)}
+                >
                   <span className="file-name">{file.name}</span>
-                  <button className="remove-btn" onClick={(e) => { e.stopPropagation(); removeFile(index); }}>
+                  <button className="remove-btn" onClick={(e) => { 
+                    e.stopPropagation(); 
+                    removeFile(index); 
+                    if (index === selectedIndex && files.length > 1) {
+                      setSelectedIndex(Math.max(0, index - 1));
+                    }
+                  }}>
                     ✕
                   </button>
                 </div>
@@ -246,7 +269,10 @@ function App() {
         <div className="glass-panel preview-section">
           <div className="preview-container">
             {previewUrl ? (
-              <img src={previewUrl} alt="Mockup Preview" className="preview-image animate-fade-in" />
+              <>
+                <img src={previewUrl} alt="Mockup Preview" className={`preview-image animate-fade-in ${isPreviewLoading ? 'loading' : ''}`} />
+                {isPreviewLoading && <div className="preview-loader">✨</div>}
+              </>
             ) : (
               <p className="empty-preview">Upload an image to see preview</p>
             )}
@@ -267,7 +293,7 @@ function App() {
                 <div className="progress-bar-container">
                   <div className="progress-bar" style={{ width: `${progress}%` }}></div>
                 </div>
-                <span className="status-text">{Math.round(progress)}% Complete</span>
+                <span className="status-text">Processing {processingCount} of {files.length} ({Math.round(progress)}%)</span>
               </>
             )}
           </div>
