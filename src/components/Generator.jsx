@@ -12,6 +12,9 @@ function Generator({ basePath, mockups }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [processingCount, setProcessingCount] = useState(0);
+  const [outputFormat, setOutputFormat] = useState('image/jpeg');
+  const [quality, setQuality] = useState(0.8);
+  const [includeOriginals, setIncludeOriginals] = useState(false);
   const fileInputRef = useRef(null);
 
   // Reset selected mockup when switching tabs (which changes the mockups prop)
@@ -158,7 +161,7 @@ function Generator({ basePath, mockups }) {
         canvas.toBlob((mockupBlob) => {
           URL.revokeObjectURL(url);
           resolve(mockupBlob);
-        }, 'image/png', 1.0);
+        }, outputFormat, quality);
       };
       img.onerror = (e) => {
         console.error('Failed to load image into canvas:', e);
@@ -178,13 +181,18 @@ function Generator({ basePath, mockups }) {
     
     const zip = new JSZip();
     
+    const extension = outputFormat === 'image/jpeg' ? 'jpg' : 'png';
+    
     for (let i = 0; i < files.length; i++) {
       setProcessingCount(i + 1);
       const mockupBlob = await generateMockupBlob(files[i]);
       if (mockupBlob) {
-        zip.file(`${i * 2 + 1}.png`, mockupBlob);
+        zip.file(`${i * 2 + 1}.${extension}`, mockupBlob);
       }
-      zip.file(`${i * 2 + 2}.png`, files[i]);
+      
+      if (includeOriginals) {
+        zip.file(`${i * 2 + 2}.png`, files[i]);
+      }
       
       setProgress(((i + 1) / files.length) * 100);
       // Small delay to let browser breathe and update UI
@@ -242,27 +250,71 @@ function Generator({ basePath, mockups }) {
           </div>
 
           {files.length > 0 && (
-            <div className="file-list">
-              {files.map((file, index) => (
-                <div 
-                  key={`${file.name}-${index}`} 
-                  className={`file-item animate-fade-in ${index === selectedIndex ? 'selected' : ''}`} 
-                  style={{ animationDelay: `${index * 0.05}s` }}
-                  onClick={() => setSelectedIndex(index)}
-                >
-                  <span className="file-name">{file.name}</span>
-                  <button className="remove-btn" onClick={(e) => { 
-                    e.stopPropagation(); 
-                    removeFile(index); 
-                    if (index === selectedIndex && files.length > 1) {
-                      setSelectedIndex(Math.max(0, index - 1));
-                    }
-                  }}>
-                    ✕
-                  </button>
+            <>
+              <div className="file-list">
+                {files.map((file, index) => (
+                  <div 
+                    key={`${file.name}-${index}`} 
+                    className={`file-item animate-fade-in ${index === selectedIndex ? 'selected' : ''}`} 
+                    style={{ animationDelay: `${index * 0.05}s` }}
+                    onClick={() => setSelectedIndex(index)}
+                  >
+                    <span className="file-name">{file.name}</span>
+                    <button className="remove-btn" onClick={(e) => { 
+                      e.stopPropagation(); 
+                      removeFile(index); 
+                      if (index === selectedIndex && files.length > 1) {
+                        setSelectedIndex(Math.max(0, index - 1));
+                      }
+                    }}>
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="settings-panel animate-fade-in">
+                <div className="settings-group">
+                  <label className="settings-label">Output Format</label>
+                  <select 
+                    className="settings-select" 
+                    value={outputFormat} 
+                    onChange={(e) => setOutputFormat(e.target.value)}
+                  >
+                    <option value="image/jpeg">JPEG (Compressed)</option>
+                    <option value="image/png">PNG (Lossless)</option>
+                  </select>
                 </div>
-              ))}
-            </div>
+
+                {outputFormat === 'image/jpeg' && (
+                  <div className="settings-group">
+                    <label className="settings-label">
+                      Quality <span>{Math.round(quality * 100)}%</span>
+                    </label>
+                    <input 
+                      type="range" 
+                      className="settings-range" 
+                      min="0.1" 
+                      max="1.0" 
+                      step="0.05" 
+                      value={quality} 
+                      onChange={(e) => setQuality(parseFloat(e.target.value))}
+                    />
+                  </div>
+                )}
+
+                <div className="settings-group">
+                  <label className="settings-toggle">
+                    <input 
+                      type="checkbox" 
+                      checked={includeOriginals} 
+                      onChange={(e) => setIncludeOriginals(e.target.checked)} 
+                    />
+                    <div className="toggle-slider"></div>
+                    <span className="toggle-text">Include original images in ZIP</span>
+                  </label>
+                </div>
+              </div>
+            </>
           )}
         </div>
 
