@@ -162,11 +162,25 @@ function DualGenerator() {
     const zip = new JSZip();
     const extension = outputFormat === 'image/jpeg' ? 'jpg' : 'png';
     
+    let fileCounter = 1;
     for (let i = 0; i < matchedPairs.length; i++) {
       setProcessingCount(i + 1);
-      const blob = await generateMockupBlob(matchedPairs[i]);
+      const pair = matchedPairs[i];
+      const blob = await generateMockupBlob(pair);
       if (blob) {
-        zip.file(`${matchedPairs[i].name.split('.')[0]}.${extension}`, blob);
+        // 1. Generated Mockup
+        zip.file(`${fileCounter}.${extension}`, blob);
+        fileCounter++;
+        
+        // 2. Original Desktop Image
+        const desktopExt = pair.desktop.name.split('.').pop() || 'png';
+        zip.file(`${fileCounter}.${desktopExt}`, pair.desktop);
+        fileCounter++;
+        
+        // 3. Original Phone Image
+        const phoneExt = pair.phone.name.split('.').pop() || 'png';
+        zip.file(`${fileCounter}.${phoneExt}`, pair.phone);
+        fileCounter++;
       }
       setProgress(((i + 1) / matchedPairs.length) * 100);
       await new Promise(r => setTimeout(r, 100));
