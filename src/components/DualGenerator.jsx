@@ -76,25 +76,15 @@ function DualGenerator() {
 
   const generateModifiedSvg = async (pair) => {
     if (!svgTemplate || !pair) return null;
-    
     const dDataUrl = await fileToDataUrl(pair.desktop);
     const pDataUrl = await fileToDataUrl(pair.phone);
-    
+
     const parser = new DOMParser();
     const doc = parser.parseFromString(svgTemplate, 'image/svg+xml');
-    
-    // Strip group filters that create the "glass/shadow" border effect
-    doc.querySelectorAll('g[filter]').forEach(g => g.removeAttribute('filter'));
 
     // Replace Phone Placeholder
     const phonePlaceholder = doc.querySelector('#Phone-Placeholder-Image');
     if (phonePlaceholder) {
-      // Remove white backdrop if present
-      const backdrop = phonePlaceholder.previousElementSibling;
-      if (backdrop && backdrop.tagName === 'rect' && backdrop.getAttribute('fill') === 'white') {
-        backdrop.remove();
-      }
-
       const image = doc.createElementNS('http://www.w3.org/2000/svg', 'image');
       image.setAttribute('id', 'Phone-Placeholder-Image');
       image.setAttribute('x', phonePlaceholder.getAttribute('x'));
@@ -110,22 +100,11 @@ function DualGenerator() {
     // Replace Desktop Placeholder
     const desktopPlaceholder = doc.querySelector('#Desktop-Placeholder-Image');
     if (desktopPlaceholder) {
-      // Use backdrop coordinates for perfect screen alignment
-      const backdrop = desktopPlaceholder.previousElementSibling;
-      let targetX = desktopPlaceholder.getAttribute('x');
-      let targetWidth = desktopPlaceholder.getAttribute('width');
-      
-      if (backdrop && backdrop.tagName === 'rect' && backdrop.getAttribute('fill') === 'white') {
-        targetX = backdrop.getAttribute('x');
-        targetWidth = backdrop.getAttribute('width');
-        backdrop.remove();
-      }
-
       const image = doc.createElementNS('http://www.w3.org/2000/svg', 'image');
       image.setAttribute('id', 'Desktop-Placeholder-Image');
-      image.setAttribute('x', targetX);
+      image.setAttribute('x', desktopPlaceholder.getAttribute('x'));
       image.setAttribute('y', desktopPlaceholder.getAttribute('y'));
-      image.setAttribute('width', targetWidth);
+      image.setAttribute('width', desktopPlaceholder.getAttribute('width'));
       image.setAttribute('height', desktopPlaceholder.getAttribute('height'));
       image.setAttribute('preserveAspectRatio', 'none');
       image.setAttributeNS('http://www.w3.org/1999/xlink', 'href', dDataUrl);
