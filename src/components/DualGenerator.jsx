@@ -93,6 +93,7 @@ function DualGenerator() {
       image.setAttribute('width', phonePlaceholder.getAttribute('width'));
       image.setAttribute('height', phonePlaceholder.getAttribute('height'));
       image.setAttribute('rx', phonePlaceholder.getAttribute('rx') || '0');
+      image.setAttribute('preserveAspectRatio', 'none');
       image.setAttributeNS('http://www.w3.org/1999/xlink', 'href', pDataUrl);
       phonePlaceholder.parentNode.replaceChild(image, phonePlaceholder);
     }
@@ -106,6 +107,7 @@ function DualGenerator() {
       image.setAttribute('y', desktopPlaceholder.getAttribute('y'));
       image.setAttribute('width', desktopPlaceholder.getAttribute('width'));
       image.setAttribute('height', desktopPlaceholder.getAttribute('height'));
+      image.setAttribute('preserveAspectRatio', 'none');
       image.setAttributeNS('http://www.w3.org/1999/xlink', 'href', dDataUrl);
       desktopPlaceholder.parentNode.replaceChild(image, desktopPlaceholder);
     }
@@ -180,7 +182,7 @@ function DualGenerator() {
 
   return (
     <div className="dual-generator animate-fade-in">
-      <div className="glass-panel dual-upload-grid">
+      <div className="dual-upload-grid">
         <div className="upload-zone desktop">
           <h4>Desktop Screenshots</h4>
           <div className="dropzone compact" onClick={() => desktopInputRef.current.click()}>
@@ -229,7 +231,7 @@ function DualGenerator() {
       </div>
 
       <div className="main-content">
-        <div className="glass-panel matching-section">
+        <div className="matching-section">
           <h3>Matched Pairs ({matchedPairs.length})</h3>
           {matchedPairs.length > 0 ? (
             <div className="file-list">
@@ -269,7 +271,7 @@ function DualGenerator() {
           </div>
         </div>
 
-        <div className="glass-panel preview-section">
+        <div className="preview-section">
           <div className="preview-container">
             {previewUrl ? (
               <>

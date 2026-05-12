@@ -162,6 +162,9 @@
   align-items: center;
   justify-content: center;
   position: relative;
+  background: none;
+  border: none;
+  box-shadow: none;
 }
 
 .preview-container::after {
