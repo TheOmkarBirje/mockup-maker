@@ -15,6 +15,7 @@ function DualGenerator() {
   const [processingCount, setProcessingCount] = useState(0);
   const [outputFormat, setOutputFormat] = useState('image/jpeg');
   const [quality, setQuality] = useState(0.8);
+  const [includeOriginals, setIncludeOriginals] = useState(true);
   
   const desktopInputRef = useRef(null);
   const phoneInputRef = useRef(null);
@@ -172,15 +173,17 @@ function DualGenerator() {
         zip.file(`${fileCounter}.${extension}`, blob);
         fileCounter++;
         
-        // 2. Original Desktop Image
-        const desktopExt = pair.desktop.name.split('.').pop() || 'png';
-        zip.file(`${fileCounter}.${desktopExt}`, pair.desktop);
-        fileCounter++;
-        
-        // 3. Original Phone Image
-        const phoneExt = pair.phone.name.split('.').pop() || 'png';
-        zip.file(`${fileCounter}.${phoneExt}`, pair.phone);
-        fileCounter++;
+        if (includeOriginals) {
+          // 2. Original Desktop Image
+          const desktopExt = pair.desktop.name.split('.').pop() || 'png';
+          zip.file(`${fileCounter}.${desktopExt}`, pair.desktop);
+          fileCounter++;
+          
+          // 3. Original Phone Image
+          const phoneExt = pair.phone.name.split('.').pop() || 'png';
+          zip.file(`${fileCounter}.${phoneExt}`, pair.phone);
+          fileCounter++;
+        }
       }
       setProgress(((i + 1) / matchedPairs.length) * 100);
       await new Promise(r => setTimeout(r, 100));
@@ -281,6 +284,16 @@ function DualGenerator() {
                 />
               </div>
             )}
+            <div className="settings-group toggle-group" style={{ marginTop: '10px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                <input 
+                  type="checkbox" 
+                  checked={includeOriginals} 
+                  onChange={(e) => setIncludeOriginals(e.target.checked)} 
+                />
+                Include original images in ZIP
+              </label>
+            </div>
           </div>
         </div>
 
