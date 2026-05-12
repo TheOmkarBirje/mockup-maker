@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './App.css';
 import Generator from './components/Generator';
+import DualGenerator from './components/DualGenerator';
 
 const GW_MOCKUPS = [
   { id: 'Mockup-1-Light-Mode.svg', name: 'Light Mode' },
@@ -34,11 +35,18 @@ function App() {
         >
           WS Mockup
         </button>
+        <button 
+          className={`tab-btn ${activeTab === 'COMBINED' ? 'active' : ''}`}
+          onClick={() => setActiveTab('COMBINED')}
+        >
+          Combined Mockup
+        </button>
       </div>
 
       <div className="tab-content">
         {activeTab === 'GW' && <Generator basePath="GW" mockups={GW_MOCKUPS} />}
         {activeTab === 'WS' && <Generator basePath="WS" mockups={WS_MOCKUPS} />}
+        {activeTab === 'COMBINED' && <DualGenerator />}
       </div>
     </div>
   );
