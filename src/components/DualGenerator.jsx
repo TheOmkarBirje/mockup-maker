@@ -93,7 +93,6 @@ function DualGenerator() {
       image.setAttribute('width', phonePlaceholder.getAttribute('width'));
       image.setAttribute('height', phonePlaceholder.getAttribute('height'));
       image.setAttribute('rx', phonePlaceholder.getAttribute('rx') || '0');
-      image.setAttribute('preserveAspectRatio', 'xMidYMid slice');
       image.setAttributeNS('http://www.w3.org/1999/xlink', 'href', pDataUrl);
       phonePlaceholder.parentNode.replaceChild(image, phonePlaceholder);
     }
@@ -107,7 +106,6 @@ function DualGenerator() {
       image.setAttribute('y', desktopPlaceholder.getAttribute('y'));
       image.setAttribute('width', desktopPlaceholder.getAttribute('width'));
       image.setAttribute('height', desktopPlaceholder.getAttribute('height'));
-      image.setAttribute('preserveAspectRatio', 'xMidYMid slice');
       image.setAttributeNS('http://www.w3.org/1999/xlink', 'href', dDataUrl);
       desktopPlaceholder.parentNode.replaceChild(image, desktopPlaceholder);
     }
@@ -186,7 +184,6 @@ function DualGenerator() {
         <div className="upload-zone desktop">
           <h4>Desktop Screenshots</h4>
           <div className="dropzone compact" onClick={() => desktopInputRef.current.click()}>
-            <span className="drop-icon">🖥️</span>
             <p>Upload Desktop</p>
             <input 
               type="file" 
@@ -210,7 +207,6 @@ function DualGenerator() {
         <div className="upload-zone phone">
           <h4>Phone Screenshots</h4>
           <div className="dropzone compact" onClick={() => phoneInputRef.current.click()}>
-            <span className="drop-icon">📱</span>
             <p>Upload Phone</p>
             <input 
               type="file" 
